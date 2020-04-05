@@ -10,6 +10,9 @@ const TOKEN_PATH = 'token.json';
 //MAKE SURE YOU ADD YOUR SPREADSHEET ID HERE
 const spreadsheetId = "";
 
+//PLACE YOUR DISCORD ID IN THE QUOTES HERE. It is not your username, it is the numeric ID assigned by Discord and accessible through developer options. 
+const adminID = "";
+
 let users = [];
 const maintenanceMode = false;
 
@@ -38,7 +41,7 @@ client.on('message', message => {
 		canRun = true;
 	} else {
 		//PLACE YOUR DISCORD ID IN THE QUOTES HERE. It is not your username, it is the numeric ID assigned by Discord and accessible through developer options. 
-		if(message.author.id == "") {
+		if(message.author.id == adminID) {
 			canRun = true;
 		}
 	}
@@ -76,20 +79,22 @@ client.on('message', message => {
 });
 
 function resetWeek(message, args) {
-	var d = new Date();
-	var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-	var newWeek = `${months[d.getMonth()]} ${d.getDate()}`;
-	for(const id in users) {
-		var user = users[id]['name'];
-		var range = `${user}!B3`;
-		let values = [ [ newWeek ], ];
-		var resource = { values, };
-		var valueInputOption = "USER_ENTERED";
-		sheetUpdates.updateSpreadsheet(message, range, resource, valueInputOption);
-		range = `${user}!C6:C17`;
-		values = [ [ "", ], [ "", ], [ "", ], [ "", ], [ "", ], [ "", ], [ "", ], [ "", ], [ "", ], [ "", ], [ "", ], [ "", ], ];
-		resource = { values, };
-		sheetUpdates.updateSpreadsheet(message, range, resource, valueInputOption);
+	if(message.author.id == adminID) {
+		var d = new Date();
+		var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+		var newWeek = `${months[d.getMonth()]} ${d.getDate()}`;
+		for(const id in users) {
+			var user = users[id]['name'];
+			var range = `${user}!B3`;
+			let values = [ [ newWeek ], ];
+			var resource = { values, };
+			var valueInputOption = "USER_ENTERED";
+			sheetUpdates.updateSpreadsheet(message, range, resource, valueInputOption);
+			range = `${user}!C6:C17`;
+			values = [ [ "", ], [ "", ], [ "", ], [ "", ], [ "", ], [ "", ], [ "", ], [ "", ], [ "", ], [ "", ], [ "", ], [ "", ], ];
+			resource = { values, };
+			sheetUpdates.updateSpreadsheet(message, range, resource, valueInputOption);
+		}
 	}
 }
 
