@@ -6,7 +6,9 @@ const {google} = require('googleapis');
 
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
 const TOKEN_PATH = 'token.json';
-const spreadsheetId = "1nR_9dBL_ZaFVssVzYAYHo8tevodOWzuPOSyxkopa3h8";
+
+//MAKE SURE YOU ADD YOUR SPREADSHEET ID HERE
+const spreadsheetId = "";
 
 let users = [];
 const maintenanceMode = false;
@@ -35,7 +37,8 @@ client.on('message', message => {
 	if(!maintenanceMode) {
 		canRun = true;
 	} else {
-		if(message.author.id == "205841363458064384") {
+		//PLACE YOUR DISCORD ID IN THE QUOTES HERE. It is not your username, it is the numeric ID assigned by Discord and accessible through developer options. 
+		if(message.author.id == "") {
 			canRun = true;
 		}
 	}
@@ -52,7 +55,7 @@ client.on('message', message => {
 					registerUser(message, args);
 					break;
 				case "link":
-					message.channel.send("https://docs.google.com/spreadsheets/d/1nR_9dBL_ZaFVssVzYAYHo8tevodOWzuPOSyxkopa3h8/edit?usp=sharing");
+					message.channel.send('https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit?usp=sharing');
 					break;
 				case "update":
 					/* Updating their daily prices takes two arguments: AM/PM and the price. */
@@ -110,7 +113,7 @@ function userPaid(message, args) {
 			var valueInputOption = "USER_ENTERED";
 			sheetUpdates.updateSpreadsheet(message, range, resource, valueInputOption);
 		} else {
-			message.channel.send("Sorry, the price needs to be a number. Try again or contact Crazy.");
+			message.channel.send("Sorry, the price needs to be a number. Try again or contact an admin.");
 		}
 	}
 }
@@ -178,7 +181,7 @@ function updateUser(message, args) {
 				message.channel.send("You can't sell turnips on a Sunday you dweeb.");
 			}
 		} else {
-			message.channel.send("Sorry, the sell price needs to be a number. Please try again or contact Crazy.");
+			message.channel.send("Sorry, the sell price needs to be a number. Please try again or contact an admin.");
 		}
 	} else {
 		message.channel.send("You are not a registered user.");
@@ -186,7 +189,8 @@ function updateUser(message, args) {
 }
 
 function registerUser(message, args) {
-	if(args[0] == "crazy" || args[0] == "Walker" || args[0] == "belle") {
+	//Users allowed are currently hard coded in. These need to match their names on the sheet. You can add as many as you want by adding "|| args[0] == 'user'"
+	if(args[0] == "") {
 		var exists = false;
 		for(const id in users) {
 			if(users[id]['name'] == args[0]) {
@@ -198,7 +202,7 @@ function registerUser(message, args) {
 			console.log('Existing user attempted to register.');
 		};
 		if(exists) {
-			message.channel.send("You are already registered. Please message Crazy if this is an error.");
+			message.channel.send("You are already registered. Please message an admin if this is an error.");
 		} else {
 			var thisName = args[0];
 			args.shift();
@@ -212,7 +216,7 @@ function registerUser(message, args) {
 			});
 		}
 	} else {
-		message.channel.send("You are not currently on the sheet. Please message Crazy or Walker to request to be added.");
+		message.channel.send("You are not currently on the sheet. Please message an admin to request to be added.");
 	}
 }
 

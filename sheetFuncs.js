@@ -5,7 +5,8 @@ const {google} = require('googleapis');
 
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
 const TOKEN_PATH = 'token.json';
-const spreadsheetId = "1nR_9dBL_ZaFVssVzYAYHo8tevodOWzuPOSyxkopa3h8";
+//UPDATE THE SPREADSHEET ID HERE TOO
+const spreadsheetId = "";
 
 function getNewToken(oAuth2Client) {
   const authUrl = oAuth2Client.generateAuthUrl({
@@ -51,7 +52,7 @@ module.exports = {
 				}, (err, result) => {
 					if(err) {
 						console.log(err);
-						message.channel.send("An error occurred. Please contact crazy.");
+						message.channel.send("An error occurred. Please contact an admin.");
 					} else {
 						var rangeSplit = range.split('!');
 						console.log(`${rangeSplit[0]} updated the spreadsheet at ${rangeSplit[1]} with the value ${resource.values}`);
