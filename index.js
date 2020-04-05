@@ -1,17 +1,12 @@
+/* 	Stalk Trading Bot index.js
+	Written April 2020 by David Maciel
+	This file should not be modified if you are just running the bot. 
+*/
+
 require('dotenv').config();
+const config = require('./config');
 const sheetUpdates = require('./sheetFuncs');
 const fs = require('fs');
-const readline = require('readline');
-const {google} = require('googleapis');
-
-const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
-const TOKEN_PATH = 'token.json';
-
-//MAKE SURE YOU ADD YOUR SPREADSHEET ID HERE
-const spreadsheetId = "";
-
-//PLACE YOUR DISCORD ID IN THE QUOTES HERE. It is not your username, it is the numeric ID assigned by Discord and accessible through developer options. 
-const adminID = "";
 
 let users = [];
 const maintenanceMode = false;
@@ -37,17 +32,16 @@ client.on('ready', () => {
 
 client.on('message', message => {
 	var canRun = false;
-	if(!maintenanceMode) {
+	if(!config.maintenanceMode) {
 		canRun = true;
 	} else {
-		//PLACE YOUR DISCORD ID IN THE QUOTES HERE. It is not your username, it is the numeric ID assigned by Discord and accessible through developer options. 
-		if(message.author.id == adminID) {
+		if(config.admins.includes(message.author.id)) {
 			canRun = true;
 		}
 	}
 	if(canRun) {
 		var msgArr = message.content.split(" ");
-		if(msgArr[0].charAt(0) == "<") {
+		if(msgArr[0].charAt(0) == config.prefix) {
 			var command = msgArr[0].substr(1).toLowerCase();
 			msgArr.shift();
 			var args = msgArr;
@@ -58,7 +52,7 @@ client.on('message', message => {
 					registerUser(message, args);
 					break;
 				case "link":
-					message.channel.send('https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit?usp=sharing');
+					message.channel.send(`https://docs.google.com/spreadsheets/d/${config.spreadsheetId}/edit?usp=sharing`);
 					break;
 				case "update":
 					/* Updating their daily prices takes two arguments: AM/PM and the price. */
@@ -73,13 +67,12 @@ client.on('message', message => {
 					resetWeek(message, args);
 					break;
 			}
-			//message.channel.send(command);
 		}
 	}
 });
 
 function resetWeek(message, args) {
-	if(message.author.id == adminID) {
+	if(config.admins.includes(message.author.id)) {
 		var d = new Date();
 		var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 		var newWeek = `${months[d.getMonth()]} ${d.getDate()}`;
@@ -118,7 +111,7 @@ function userPaid(message, args) {
 			var valueInputOption = "USER_ENTERED";
 			sheetUpdates.updateSpreadsheet(message, range, resource, valueInputOption);
 		} else {
-			message.channel.send("Sorry, the price needs to be a number. Try again or contact an admin.");
+			message.channel.send("Sorry, the price needs to be a number. Try again or contact Crazy.");
 		}
 	}
 }
@@ -186,7 +179,7 @@ function updateUser(message, args) {
 				message.channel.send("You can't sell turnips on a Sunday you dweeb.");
 			}
 		} else {
-			message.channel.send("Sorry, the sell price needs to be a number. Please try again or contact an admin.");
+			message.channel.send("Sorry, the sell price needs to be a number. Please try again or contact Crazy.");
 		}
 	} else {
 		message.channel.send("You are not a registered user.");
@@ -194,8 +187,7 @@ function updateUser(message, args) {
 }
 
 function registerUser(message, args) {
-	//Users allowed are currently hard coded in. These need to match their names on the sheet. You can add as many as you want by adding "|| args[0] == 'user'"
-	if(args[0] == "") {
+	if(config.allowedUsers.includes(args[0])) {
 		var exists = false;
 		for(const id in users) {
 			if(users[id]['name'] == args[0]) {
@@ -207,7 +199,7 @@ function registerUser(message, args) {
 			console.log('Existing user attempted to register.');
 		};
 		if(exists) {
-			message.channel.send("You are already registered. Please message an admin if this is an error.");
+			message.channel.send("You are already registered. Please message Crazy if this is an error.");
 		} else {
 			var thisName = args[0];
 			args.shift();
@@ -221,7 +213,7 @@ function registerUser(message, args) {
 			});
 		}
 	} else {
-		message.channel.send("You are not currently on the sheet. Please message an admin to request to be added.");
+		message.channel.send("You are not currently on the sheet. Please message Crazy or Walker to request to be added.");
 	}
 }
 
