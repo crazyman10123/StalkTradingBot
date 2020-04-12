@@ -52,6 +52,11 @@ client.on('message', message => {
 					registerUser(message, args);
 					break;
 				case "link":
+					/* No args are used for this, but we pass it for compatibility. 
+					   This function returns a link formatted to the predictions website. */
+					prediction(message, args);
+					break;
+				case "sheet":
 					message.channel.send(`https://docs.google.com/spreadsheets/d/${config.spreadsheetId}/edit?usp=sharing`);
 					break;
 				case "update":
@@ -70,6 +75,19 @@ client.on('message', message => {
 		}
 	}
 });
+
+async function prediction(message, args) {
+	for(const id in users) {
+		if(users[id]['id'] == message.author.id) {
+			user = users[id]['name'];
+			exists = true;
+			break;
+		}
+	}
+	if(exists) {
+		sheetUpdates.getPrices(message, user);
+	}
+}
 
 function resetWeek(message, args) {
 	if(config.admins.includes(message.author.id)) {

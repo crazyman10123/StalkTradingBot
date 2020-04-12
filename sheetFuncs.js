@@ -31,7 +31,52 @@ function getNewToken(oAuth2Client) {
   });
 }
 
+async function getPrices(message, user) {
+	var retLink = "http://turnipprophet.io/index.html?prices=";
+	fs.readFile('credentials.json', async (err, content) => {
+		if(err) return console.log('Error loading client secret file:' , err);
+		var creds = JSON.parse(content);
+		var {client_secret, client_id, redirect_uris} = creds.installed;
+		var oAuth2Client = new google.auth.OAuth2(
+			client_id, client_secret, redirect_uris[0]);
+		fs.readFile(TOKEN_PATH, async (err, token) => {
+			if (err) return getNewToken(oAuth2Client);
+			oAuth2Client.setCredentials(JSON.parse(token));
+			var sheets = google.sheets({version: 'v4', auth: oAuth2Client});
+			var boughtRequest = {
+				spreadsheetId: config.spreadsheetId,
+				range: `${user}!D3`,
+				auth: oAuth2Client
+			};
+			var sellRequest = {
+				spreadsheetId: config.spreadsheetId,
+				range: `${user}!C6:C17`,
+				auth: oAuth2Client
+			};
+			try {
+				var boughtResponse = (await sheets.spreadsheets.values.get(boughtRequest)).data;
+				if(boughtResponse.values) {
+					retLink += `${boughtResponse.values[0]}`;
+				var sellResponse = (await sheets.spreadsheets.values.get(sellRequest)).data;
+				if(sellResponse.values) {
+					var values = sellResponse.values;
+					for(i = 0; i < values.length; i++) {
+							retLink += `.${values[i]}`;
+						}
+					}
+					message.channel.send(retLink);
+				}
+			} catch (err) {
+				console.log(err);
+			}
+		});
+	});
+}
+
 module.exports = {
+	
+	getPrices: getPrices,
+	
 	updateSpreadsheet: function(message, range, resource, valueInputOption) {
 		fs.readFile('credentials.json', (err, content) => {
 			if(err) return console.log('Error loading client secret file:' , err);
